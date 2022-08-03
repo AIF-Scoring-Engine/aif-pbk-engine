@@ -53,8 +53,7 @@ func Limit(next http.Handler) http.Handler {
 func Router() *mux.Router {
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/post/company", controller.PostCompany).Methods("POST")
-	router.HandleFunc("/api/post/company2", controller.PostCompany2).Methods("POST")
+	router.HandleFunc("/api/post/company2", controller.PostCompany).Methods("POST")
 
 	return router
 }
