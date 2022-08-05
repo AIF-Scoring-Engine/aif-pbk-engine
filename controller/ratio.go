@@ -4,9 +4,11 @@ import (
 	"awesomeProject1/models"
 	"encoding/json"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type response struct {
@@ -21,6 +23,7 @@ type response struct {
 type PbkDumps struct {
 	CompanyName string `json:"company_name"`
 	Npwp        string `json:"npwp"`
+	ApiKey      string `json:"api_key"`
 }
 
 type Payload struct {
@@ -29,6 +32,12 @@ type Payload struct {
 }
 
 func (request PbkDumps) validate() url.Values {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	errs := url.Values{}
 
 	if request.CompanyName == "" {
@@ -37,6 +46,10 @@ func (request PbkDumps) validate() url.Values {
 
 	if request.Npwp == "" {
 		errs.Add("npwp", "Key is required")
+	}
+
+	if request.ApiKey != os.Getenv("API_KEY") {
+		errs.Add("api_key", "api_key is wrong")
 	}
 
 	return errs
