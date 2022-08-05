@@ -34,7 +34,7 @@ func GetCompany(Payload Payload) Response {
 
 	var respo map[string]interface{}
 
-	json.NewDecoder(resp.Body).Decode(&respo)
+	_ = json.NewDecoder(resp.Body).Decode(&respo)
 	result.CompanyName = respo["url"].(string)
 	result.Npwp = respo["url"].(string)
 	//result.BankDebtToEquity = respo["url"].(float64)
