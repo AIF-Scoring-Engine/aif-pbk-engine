@@ -3,7 +3,6 @@ package controller
 import (
 	"awesomeProject1/models"
 	"encoding/json"
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
@@ -76,8 +75,6 @@ func PostCompany(w http.ResponseWriter, r *http.Request) {
 		CompanyName: PbkDumps.CompanyName,
 		Npwp:        PbkDumps.Npwp,
 	}
-
-	fmt.Printf("Inserted data with transaction_id: %v \n", Payload)
 
 	data := models.GetCompany(models.Payload(Payload))
 
