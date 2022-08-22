@@ -8,5 +8,5 @@ steps:
   - run
   - --filename=deployment/deployment.yaml
   - --image=asia.gcr.io/$PROJECT_ID/aif-pbk:$SHORT_SHA
-  - --location=asia-southeast2-c
-  - --cluster=scoreezy-dev
+  - --location=asia-southeast2
+  - --cluster=aif-pbk
