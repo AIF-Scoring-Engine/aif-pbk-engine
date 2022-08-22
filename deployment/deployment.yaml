@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pbk-svc
+  namespace: default
+  labels:
+    app: pbk
+    service: pbk-svc
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: tcp
+  selector:
+    app: pbk
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pbk
+  labels:
+    account: pbk
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pbk
+  namespace: default
+  labels:
+    app: pbk
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pbk
+  template:
+    metadata:
+      labels:
+        app: pbk
+    spec:
+      serviceAccountName: pbk
+      containers:
+      - name: pbk
+        image: asia.gcr.io/aif-pbk/aif-pbk
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1024Mi"
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+        env:
+          - name: PORT_LOCAL
+            value: db-postgre
+            valueFrom:
+              configMapKeyRef:
+                name: pbk-config
+                key: PORT_LOCAL
+          - name: HOST_LOCAL
+            value: db-postgre-svc
+            valueFrom:
+              configMapKeyRef:
+                name: pbk-config
+                key: HOST_LOCAL
+          - name: USER_LOCAL
+            valueFrom:
+              secretKeyRef:
+                name: pbk-secret
+                key: USER_LOCAL
+          - name: PASSWORD_LOCAL
+            valueFrom:
+              secretKeyRef:
+                name: pbk-secret
+                key: PASSWORD_LOCAL
+          - name: DATABASE_LOCAL
+            valueFrom:
+              configMapKeyRef:
+                name: pbk-config
+                key: DATABASE_LOCAL
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: pbk-secret
+                key: API_KEY
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pbk-hpa
+  namespace: default
+  labels:
+    app: pbk
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pbk
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      target:
+        type: Utilization
+        averageUtilization: 80
