@@ -54,13 +54,11 @@ spec:
             memory: "2Gi"
         env:
           - name: PORT_LOCAL
-            value: db-postgre
             valueFrom:
               configMapKeyRef:
                 name: pbk-config
                 key: PORT_LOCAL
           - name: HOST_LOCAL
-            value: db-postgre-svc
             valueFrom:
               configMapKeyRef:
                 name: pbk-config
@@ -86,7 +84,7 @@ spec:
                 name: pbk-secret
                 key: API_KEY
 ---
-apiVersion: autoscaling/v2
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pbk-hpa
