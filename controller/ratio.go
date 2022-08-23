@@ -3,7 +3,6 @@ package controller
 import (
 	"awesomeProject1/models"
 	"encoding/json"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"net/url"
@@ -31,11 +30,11 @@ type Payload struct {
 }
 
 func (request PbkDumps) validate() url.Values {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	//err := godotenv.Load(".env")
+	//
+	//if err != nil {
+	//	log.Fatalf("Error loading .env file")
+	//}
 
 	errs := url.Values{}
 
