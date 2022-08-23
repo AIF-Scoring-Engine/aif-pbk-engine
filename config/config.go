@@ -19,7 +19,8 @@ func CreateConnection() *sql.DB {
 	DbPassword := os.Getenv("PASSWORD_LOCAL")
 	DbName := os.Getenv("DATABASE_LOCAL")
 	DbHost := os.Getenv("HOST_LOCAL")
-	dbinfo := fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable", DbUser, DbPassword, DbHost, DbName)
+	DbPort := os.Getenv("PORT_LOCAL")
+	dbinfo := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", DbUser, DbPassword, DbHost, DbPort, DbName)
 	db, err := sql.Open("postgres", dbinfo)
 
 	if err != nil {
