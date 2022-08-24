@@ -29,7 +29,7 @@ metadata:
   labels:
     app: pbk
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: pbk
@@ -45,39 +45,39 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
-        resources:
-          requests:
-            cpu: "500m"
-            memory: "1024Mi"
-          limits:
-            cpu: "1"
-            memory: "2Gi"
+        # resources:
+        #   requests:
+        #     cpu: "1"
+        #     memory: "2048Mi"
+        #   limits:
+        #     cpu: "1"
+        #     memory: "2Gi"
         env:
           - name: PORT_LOCAL
             valueFrom:
               configMapKeyRef:
                 name: pbk-config
-                key: PORT_LOCAL
+                key: PG_PORT
           - name: HOST_LOCAL
             valueFrom:
               configMapKeyRef:
                 name: pbk-config
-                key: HOST_LOCAL
+                key: PG_HOST
           - name: USER_LOCAL
             valueFrom:
               secretKeyRef:
                 name: pbk-secret
-                key: USER_LOCAL
+                key: PG_USER
           - name: PASSWORD_LOCAL
             valueFrom:
               secretKeyRef:
                 name: pbk-secret
-                key: PASSWORD_LOCAL
+                key: PG_PASSWORD
           - name: DATABASE_LOCAL
             valueFrom:
               configMapKeyRef:
                 name: pbk-config
-                key: DATABASE_LOCAL
+                key: PG_DB_NAME
           - name: API_KEY
             valueFrom:
               secretKeyRef:
@@ -104,4 +104,5 @@ spec:
       name: "cpu"
       target:
         type: Utilization
-        averageUtilization: 80
+        averageUtilization: 75
+        
