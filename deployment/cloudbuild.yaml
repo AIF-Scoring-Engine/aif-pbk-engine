@@ -8,3 +8,4 @@ steps:
   - run
   - --filename=deployment/deployment.yaml
   - --image=asia.gcr.io/$PROJECT_ID/aif-pbk:$TAG_NAME
+  - --cluster=pbk-prod
