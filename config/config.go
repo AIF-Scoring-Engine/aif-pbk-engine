@@ -9,11 +9,6 @@ import (
 )
 
 func CreateConnection() *sql.DB {
-	//err := godotenv.Load(".env")
-	//
-	//if err != nil {
-	//	log.Fatalf("Error loading .env file")
-	//}
 
 	DbUser := os.Getenv("USER_LOCAL")
 	DbPassword := os.Getenv("PASSWORD_LOCAL")
