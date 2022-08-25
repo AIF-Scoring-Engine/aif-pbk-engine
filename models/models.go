@@ -69,7 +69,7 @@ coalesce(capitalisation,0) capitalisation,
 coalesce(gross_profit_margins,0) gross_profit_margins,
 coalesce(bank_debt_to_equity,0) bank_debt_to_equity,
 coalesce(current_ratio,0) current_ratio
-FROM data_pbk.fin_ratio_investree WHERE bpd_company_name='%s' and npwp='%s' limit 1`, CompanyNames, Npwp)
+FROM data_pbk.fin_ratio_investree WHERE bpd_company_name=lower('%s') and npwp='%s' limit 1`, CompanyNames, Npwp)
 
 	err := db.QueryRow(sqlStatement).Scan(&finrat.Id, &finrat.CompanyName,
 		&finrat.Npwp, &finrat.Capitalisation, &finrat.GrossProfitMargin, &finrat.BankDebtToEquity, &finrat.CurrentRatio)
