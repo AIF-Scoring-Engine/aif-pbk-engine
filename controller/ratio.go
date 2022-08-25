@@ -168,7 +168,7 @@ func PostCompanyDev(w http.ResponseWriter, r *http.Request) {
 
 	res := response{
 		CompanyName:       finratres.CompanyName,
-		Npwp:              PbkDumps.Npwp.(string),
+		Npwp:              PbkDumps.Npwp,
 		BankDebtToEquity:  finratres.BankDebtToEquity,
 		Capitalisation:    finratres.Capitalisation,
 		GrossProfitMargin: finratres.GrossProfitMargin,
