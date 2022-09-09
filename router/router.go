@@ -54,6 +54,7 @@ func Router() *mux.Router {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/post/company", controller.PostCompany).Methods("POST")
+	router.HandleFunc("/api/post/staging/company", controller.PostCompanyStaging).Methods("POST")
 	router.HandleFunc("/api/post/dev/company", controller.PostCompanyDev).Methods("POST")
 
 	return router

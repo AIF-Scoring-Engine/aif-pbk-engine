@@ -7,8 +7,11 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/lib/pq"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
 type Response struct {
@@ -35,27 +38,122 @@ type Payload struct {
 	Npwp        interface{} `json:"npwp"`
 }
 
-func GetCompany(Payload Payload) Response {
+type Match struct {
+	Status   string
+	Message  string
+	DataDate string
+	BpdId    string
+	Data     struct {
+		Capitalisation    float64 `json:"capitalisation"`
+		GrossProfitMargin float64 `json:"gross_profit_margins"`
+		BankDebtToEquity  float64 `json:"bank_debt_to_equity"`
+		CurrentRatio      float64 `json:"current_ratio"`
+	}
+}
+
+func GetCompany(CompanyNames string, Npwp interface{}) Response {
 
 	var result Response
 
-	data, err := json.Marshal(Payload)
+	c := http.Client{Timeout: time.Duration(5) * time.Second}
+	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
+	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("%s", os.Getenv("TOKEN_PRODUCTION")))
+
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return result
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return result
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return result
+	}
+
+	respo := &Match{}
+
+	err = json.Unmarshal([]byte(body), respo)
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(data)) //replace with investree endpoint
 
-	var respo map[string]interface{}
+	if respo.Message != "Data Found" {
+		result.BankDebtToEquity = 0
+		result.GrossProfitMargin = 0
+		result.Capitalisation = 0
+		result.CurrentRatio = 0
+	} else if respo.Message == "Data Found" {
+		result.BankDebtToEquity = respo.Data.BankDebtToEquity
+		result.GrossProfitMargin = respo.Data.GrossProfitMargin
+		result.Capitalisation = respo.Data.Capitalisation
+		result.CurrentRatio = respo.Data.CurrentRatio
+	}
 
-	_ = json.NewDecoder(resp.Body).Decode(&respo)
-	result.CompanyName = respo["url"].(string)
-	result.Npwp = respo["url"].(string)
-	//result.BankDebtToEquity = respo["url"].(float64)
-	//result.GrossProfitMargin = respo["url"].(float64)
-	//result.Capitalisation = respo["url"].(float64)
-	//result.Capitalisation = respo["url"].(float64)
-	//fmt.Println(result.CompanyName)
+	result.CompanyName = CompanyNames
+	result.Npwp = Npwp
+	return result
+}
 
+func GetCompanyStaging(CompanyNames string, Npwp interface{}) Response {
+
+	var result Response
+
+	c := http.Client{Timeout: time.Duration(5) * time.Second}
+	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
+	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("%s", os.Getenv("TOKEN_STAGING")))
+
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return result
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return result
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return result
+	}
+
+	respo := &Match{}
+
+	err = json.Unmarshal([]byte(body), respo)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if respo.Message != "Data Found" {
+		result.BankDebtToEquity = 0
+		result.GrossProfitMargin = 0
+		result.Capitalisation = 0
+		result.CurrentRatio = 0
+	} else if respo.Message == "Data Found" {
+		result.BankDebtToEquity = respo.Data.BankDebtToEquity
+		result.GrossProfitMargin = respo.Data.GrossProfitMargin
+		result.Capitalisation = respo.Data.Capitalisation
+		result.CurrentRatio = respo.Data.CurrentRatio
+	}
+
+	result.CompanyName = CompanyNames
+	result.Npwp = Npwp
 	return result
 }
 

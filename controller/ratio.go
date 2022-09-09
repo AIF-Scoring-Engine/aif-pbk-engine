@@ -89,7 +89,45 @@ func PostCompany(w http.ResponseWriter, r *http.Request) {
 		Npwp:        PbkDumps.Npwp,
 	}
 
-	data := models.GetCompany(models.Payload(Payload))
+	data := models.GetCompany(Payload.CompanyName, Payload.Npwp)
+
+	if data.CompanyName == "No Data" {
+		err := map[string]interface{}{"Error": "No company found"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	}
 
 	res := response{
 		CompanyName:       data.CompanyName,
@@ -103,6 +141,79 @@ func PostCompany(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
+func PostCompanyStaging(w http.ResponseWriter, r *http.Request) {
+
+	PbkDumps := &PbkDumps{}
+
+	err := json.NewDecoder(r.Body).Decode(&PbkDumps)
+	if err != nil {
+		log.Fatalf("Can't decode from request body.  %v", err)
+	}
+
+	if validErrs := PbkDumps.validateprod(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	Payload := Payload{
+		CompanyName: PbkDumps.CompanyName,
+		Npwp:        PbkDumps.Npwp,
+	}
+
+	data := models.GetCompanyStaging(Payload.CompanyName, Payload.Npwp)
+
+	if data.CompanyName == "No Data" {
+		err := map[string]interface{}{"Error": "No company found"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+		err := map[string]interface{}{"Error": "Variable not sufficient"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	res := response{
+		CompanyName:       data.CompanyName,
+		Npwp:              PbkDumps.Npwp.(string),
+		BankDebtToEquity:  data.BankDebtToEquity,
+		Capitalisation:    data.Capitalisation,
+		GrossProfitMargin: data.GrossProfitMargin,
+		CurrentRatio:      data.CurrentRatio,
+	}
+
+	_ = json.NewEncoder(w).Encode(res)
+}
 func PostCompanyDev(w http.ResponseWriter, r *http.Request) {
 
 	PbkDumps := &PbkDumps{}
