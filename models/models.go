@@ -112,7 +112,7 @@ func GetCompanyStaging(CompanyNames string, Npwp interface{}) Response {
 	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
 	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s", os.Getenv("TOKEN_STAGING")))
+	req.Header.Add("Authorization", "j4tC4zLSc9XjZ2L4FhxwAUDcbyy6mrUM") //fmt.Sprintf("%s", os.Getenv("TOKEN_STAGING")
 
 	if err != nil {
 		fmt.Printf("Error %s", err)
