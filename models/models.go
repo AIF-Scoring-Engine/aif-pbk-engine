@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/lib/pq"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -71,7 +72,13 @@ func GetCompany(CompanyNames string, Npwp interface{}) Response {
 		return result
 	}
 
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -124,7 +131,13 @@ func GetCompanyStaging(CompanyNames string, Npwp interface{}) (Responses Respons
 		return result, status
 	}
 
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+
+	}(resp.Body)
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
