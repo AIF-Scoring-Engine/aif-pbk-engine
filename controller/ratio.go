@@ -12,10 +12,10 @@ import (
 type response struct {
 	CompanyName       string      `json:"company_name"`
 	Npwp              interface{} `json:"npwp"`
-	BankDebtToEquity  float64     `json:"bank_debt_to_equity"`
-	Capitalisation    float64     `json:"capitalisation"`
-	GrossProfitMargin float64     `json:"gross_profit_margin"`
-	CurrentRatio      float64     `json:"current_ratio"`
+	BankDebtToEquity  *float64    `json:"bank_debt_to_equity"`
+	Capitalisation    *float64    `json:"capitalisation"`
+	GrossProfitMargin *float64    `json:"gross_profit_margin"`
+	CurrentRatio      *float64    `json:"current_ratio"`
 }
 
 type PbkDumps struct {
@@ -91,37 +91,41 @@ func PostCompany(w http.ResponseWriter, r *http.Request) {
 
 	data := models.GetCompany(Payload.CompanyName, Payload.Npwp)
 
+	f := func(s float64) *float64 {
+		return &s
+	}
+
 	if data.CompanyName == "No Data" {
 		err := map[string]interface{}{"Error": "No company found"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 {
+	} else if data.Capitalisation == f(0) && data.GrossProfitMargin == f(0) && data.BankDebtToEquity == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+	} else if data.Capitalisation == f(0) && data.BankDebtToEquity == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.CurrentRatio == 0 {
+	} else if data.Capitalisation == f(0) && data.GrossProfitMargin == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+	} else if data.GrossProfitMargin == f(0) && data.BankDebtToEquity == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+	} else if data.Capitalisation == f(0) && data.GrossProfitMargin == f(0) && data.BankDebtToEquity == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -163,7 +167,11 @@ func PostCompanyStaging(w http.ResponseWriter, r *http.Request) {
 		Npwp:        PbkDumps.Npwp,
 	}
 
-	data := models.GetCompanyStaging(Payload.CompanyName, Payload.Npwp)
+	data, status := models.GetCompanyStaging(Payload.CompanyName, Payload.Npwp)
+
+	f := func(s float64) *float64 {
+		return &s
+	}
 
 	if data.CompanyName == "No Data" {
 		err := map[string]interface{}{"Error": "No company found"}
@@ -171,31 +179,37 @@ func PostCompanyStaging(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 {
+	} else if status == "Reject" {
+		err := map[string]interface{}{"Error": "No company found"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if data.Capitalisation == f(0) && data.GrossProfitMargin == f(0) && data.BankDebtToEquity == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+	} else if data.Capitalisation == f(0) && data.BankDebtToEquity == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.CurrentRatio == 0 {
+	} else if data.Capitalisation == f(0) && data.GrossProfitMargin == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+	} else if data.GrossProfitMargin == f(0) && data.BankDebtToEquity == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if data.Capitalisation == 0 && data.GrossProfitMargin == 0 && data.BankDebtToEquity == 0 && data.CurrentRatio == 0 {
+	} else if data.Capitalisation == f(0) && data.GrossProfitMargin == f(0) && data.BankDebtToEquity == f(0) && data.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -232,6 +246,9 @@ func PostCompanyDev(w http.ResponseWriter, r *http.Request) {
 	}
 
 	finratres := models.FetchFinratio(PbkDumps.CompanyName, PbkDumps.Npwp)
+	f := func(s float64) *float64 {
+		return &s
+	}
 
 	if finratres.CompanyName == "No Data" {
 		err := map[string]interface{}{"Error": "No company found"}
@@ -239,31 +256,31 @@ func PostCompanyDev(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if finratres.Capitalisation == 0 && finratres.GrossProfitMargin == 0 && finratres.BankDebtToEquity == 0 {
+	} else if finratres.Capitalisation == f(0) && finratres.GrossProfitMargin == f(0) && finratres.BankDebtToEquity == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if finratres.Capitalisation == 0 && finratres.BankDebtToEquity == 0 && finratres.CurrentRatio == 0 {
+	} else if finratres.Capitalisation == f(0) && finratres.BankDebtToEquity == f(0) && finratres.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if finratres.Capitalisation == 0 && finratres.GrossProfitMargin == 0 && finratres.CurrentRatio == 0 {
+	} else if finratres.Capitalisation == f(0) && finratres.GrossProfitMargin == f(0) && finratres.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if finratres.GrossProfitMargin == 0 && finratres.BankDebtToEquity == 0 && finratres.CurrentRatio == 0 {
+	} else if finratres.GrossProfitMargin == f(0) && finratres.BankDebtToEquity == f(0) && finratres.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(err)
 		return
-	} else if finratres.Capitalisation == 0 && finratres.GrossProfitMargin == 0 && finratres.BankDebtToEquity == 0 && finratres.CurrentRatio == 0 {
+	} else if finratres.Capitalisation == f(0) && finratres.GrossProfitMargin == f(0) && finratres.BankDebtToEquity == f(0) && finratres.CurrentRatio == f(0) {
 		err := map[string]interface{}{"Error": "Variable not sufficient"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
