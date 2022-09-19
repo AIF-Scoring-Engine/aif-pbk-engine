@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -59,7 +58,7 @@ func GetCompany(CompanyNames string, Npwp interface{}) Response {
 	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
 	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s", os.Getenv("TOKEN_PRODUCTION")))
+	req.Header.Add("Authorization", "test") //fmt.Sprintf("%s", os.Getenv("TOKEN_PRODUCTION"))
 
 	if err != nil {
 		fmt.Printf("Error %s", err)
@@ -146,10 +145,10 @@ func GetCompanyStaging(CompanyNames string, Npwp interface{}) (Responses Respons
 
 	if respo.Message != "Data Found" {
 		status = "Reject"
-		result.BankDebtToEquity = nil
-		result.GrossProfitMargin = nil
-		result.Capitalisation = nil
-		result.CurrentRatio = nil
+		result.BankDebtToEquity = f(0)
+		result.GrossProfitMargin = f(0)
+		result.Capitalisation = f(0)
+		result.CurrentRatio = f(0)
 	} else if respo.Message == "Data Found" {
 		status = "Accepted"
 		if respo.Data.BankDebtToEquity == nil {
