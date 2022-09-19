@@ -191,6 +191,43 @@ func GetCompanyStaging(CompanyNames string, Npwp interface{}) (Responses Respons
 	return result, status
 }
 
+func TestConnection(Npwp interface{}) (status string) {
+
+	c := http.Client{Timeout: time.Duration(5) * time.Second}
+	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
+	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Authorization", "A5js76ShNz8c1Yup05bXvY4kBbk23Ja9") //fmt.Sprintf("%s", os.Getenv("TOKEN_STAGING") staging:"j4tC4zLSc9XjZ2L4FhxwAUDcbyy6mrUM"
+
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return status
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return status
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+
+	}(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Printf("Error %s", err)
+		return status
+	}
+	status = string(body)
+
+	return status
+}
+
 func FetchFinratio(CompanyNames string, Npwp interface{}) Finrats {
 	db := config.CreateConnection()
 

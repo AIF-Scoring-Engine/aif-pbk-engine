@@ -228,6 +228,33 @@ func PostCompanyStaging(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewEncoder(w).Encode(res)
 }
+
+func ConnectionTest(w http.ResponseWriter, r *http.Request) {
+
+	PbkDumps := &PbkDumps{}
+
+	err := json.NewDecoder(r.Body).Decode(&PbkDumps)
+	if err != nil {
+		log.Fatalf("Can't decode from request body.  %v", err)
+	}
+
+	if validErrs := PbkDumps.validateprod(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	Payload := Payload{
+		CompanyName: PbkDumps.CompanyName,
+		Npwp:        PbkDumps.Npwp,
+	}
+
+	status := models.TestConnection(Payload.Npwp)
+	_ = json.NewEncoder(w).Encode(status)
+}
+
 func PostCompanyDev(w http.ResponseWriter, r *http.Request) {
 
 	PbkDumps := &PbkDumps{}
