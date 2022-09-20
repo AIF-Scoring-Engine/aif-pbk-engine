@@ -195,7 +195,7 @@ func TestConnection(Npwp interface{}) (status string) {
 
 	c := http.Client{Timeout: time.Duration(5) * time.Second}
 	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
-	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
+	req, err := http.NewRequest("POST", "https://dw.investree.id/v1/data-extraction/borrower-info", postData)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Add("Authorization", "A5js76ShNz8c1Yup05bXvY4kBbk23Ja9") //fmt.Sprintf("%s", os.Getenv("TOKEN_STAGING") staging:"j4tC4zLSc9XjZ2L4FhxwAUDcbyy6mrUM"
 
