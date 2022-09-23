@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -51,25 +52,25 @@ type Match struct {
 	}
 }
 
-func GetCompany(CompanyNames string, Npwp interface{}) Response {
+func GetCompany(CompanyNames string, Npwp interface{}) (Responses Response, status string) {
 
 	var result Response
 
 	c := http.Client{Timeout: time.Duration(5) * time.Second}
 	postData := bytes.NewBuffer([]byte(fmt.Sprintf(`{"filters":{"no_npwp":"%s"},"measure_names":["capitalisation","gross_profit_margins","bank_debt_to_equity","current_ratio"]}`, Npwp)))
-	req, err := http.NewRequest("POST", "https://dw.investree.tech/v1/data-extraction/borrower-info", postData)
+	req, err := http.NewRequest("POST", "https://dw.investree.id/v1/data-extraction/borrower-info", postData)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Add("Authorization", "test") //fmt.Sprintf("%s", os.Getenv("TOKEN_PRODUCTION"))
+	req.Header.Add("Authorization", fmt.Sprintf("%s", os.Getenv("TOKEN_PRODUCTION"))) //fmt.Sprintf("%s", os.Getenv("TOKEN_PRODUCTION"))
 
 	if err != nil {
 		fmt.Printf("Error %s", err)
-		return result
+		return result, status
 	}
 
 	resp, err := c.Do(req)
 	if err != nil {
 		fmt.Printf("Error %s", err)
-		return result
+		return result, status
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -78,12 +79,11 @@ func GetCompany(CompanyNames string, Npwp interface{}) Response {
 
 		}
 	}(resp.Body)
-
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		fmt.Printf("Error %s", err)
-		return result
+		return result, status
 	}
 
 	respo := &Match{}
@@ -93,21 +93,43 @@ func GetCompany(CompanyNames string, Npwp interface{}) Response {
 		log.Fatal(err)
 	}
 
+	f := func(s float64) *float64 {
+		return &s
+	}
+
 	if respo.Message != "Data Found" {
-		result.BankDebtToEquity = nil
-		result.GrossProfitMargin = nil
-		result.Capitalisation = nil
-		result.CurrentRatio = nil
+		status = "Reject"
+		result.BankDebtToEquity = f(0)
+		result.GrossProfitMargin = f(0)
+		result.Capitalisation = f(0)
+		result.CurrentRatio = f(0)
 	} else if respo.Message == "Data Found" {
-		result.BankDebtToEquity = respo.Data.BankDebtToEquity
-		result.GrossProfitMargin = respo.Data.GrossProfitMargin
-		result.Capitalisation = respo.Data.Capitalisation
-		result.CurrentRatio = respo.Data.CurrentRatio
+		status = "Accepted"
+		if respo.Data.BankDebtToEquity == nil {
+			result.BankDebtToEquity = f(0)
+		} else {
+			result.BankDebtToEquity = respo.Data.BankDebtToEquity
+		}
+		if respo.Data.GrossProfitMargin == nil {
+			result.GrossProfitMargin = f(0)
+		} else {
+			result.GrossProfitMargin = respo.Data.GrossProfitMargin
+		}
+		if respo.Data.Capitalisation == nil {
+			result.Capitalisation = f(0)
+		} else {
+			result.Capitalisation = respo.Data.Capitalisation
+		}
+		if respo.Data.CurrentRatio == nil {
+			result.CurrentRatio = f(0)
+		} else {
+			result.CurrentRatio = respo.Data.CurrentRatio
+		}
 	}
 
 	result.CompanyName = CompanyNames
 	result.Npwp = Npwp
-	return result
+	return result, status
 }
 
 func GetCompanyStaging(CompanyNames string, Npwp interface{}) (Responses Response, status string) {

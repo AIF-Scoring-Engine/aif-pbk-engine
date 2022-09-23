@@ -89,13 +89,19 @@ func PostCompany(w http.ResponseWriter, r *http.Request) {
 		Npwp:        PbkDumps.Npwp,
 	}
 
-	data := models.GetCompany(Payload.CompanyName, Payload.Npwp)
+	data, status := models.GetCompany(Payload.CompanyName, Payload.Npwp)
 
 	f := func(s float64) *float64 {
 		return &s
 	}
 
 	if data.CompanyName == "No Data" {
+		err := map[string]interface{}{"Error": "No company found"}
+		w.Header().Set("Content-type", "appliciation/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(err)
+		return
+	} else if status == "Reject" {
 		err := map[string]interface{}{"Error": "No company found"}
 		w.Header().Set("Content-type", "appliciation/json")
 		w.WriteHeader(http.StatusBadRequest)
