@@ -22,13 +22,14 @@ metadata:
     account: pbk
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: pbk
   namespace: default
   labels:
     app: pbk
 spec:
+  serviceName: pbk-svc
   replicas: 1
   selector:
     matchLabels:
@@ -45,13 +46,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
-        # resources:
-        #   requests:
-        #     cpu: "1"
-        #     memory: "2048Mi"
-        #   limits:
-        #     cpu: "1"
-        #     memory: "2Gi"
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2048Mi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
         env:
           - name: PORT_LOCAL
             valueFrom:
@@ -83,6 +84,16 @@ spec:
               secretKeyRef:
                 name: pbk-secret
                 key: API_KEY
+  volumeClaimTemplates:
+  - metadata:
+      name: scoreezy-redis-pvc
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "premium-rwo"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler

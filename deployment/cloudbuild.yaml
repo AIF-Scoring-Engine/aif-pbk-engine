@@ -8,5 +8,5 @@ steps:
   - run
   - --filename=deployment/deployment.yaml
   - --image=asia.gcr.io/$PROJECT_ID/aif-pbk:$TAG_NAME
-  - --location=asia-southeast2-c
+  - --location=asia-southeast2-a
   - --cluster=aif-pbk
