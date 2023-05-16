@@ -17,20 +17,16 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: pbk
-  labels:
-    account: pbk
+  name: pbk-ksa
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: pbk
-  namespace: default
+  namespace: pbk
   labels:
     app: pbk
 spec:
-  serviceName: pbk-svc
-  replicas: 1
   selector:
     matchLabels:
       app: pbk
@@ -39,20 +35,20 @@ spec:
       labels:
         app: pbk
     spec:
-      serviceAccountName: pbk
+      serviceAccountName: pbk-ksa
       containers:
       - name: pbk
-        image: asia.gcr.io/aif-pbk/aif-pbk
+        image: asia.gcr.io/aif-staging/aif-pbk
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
         resources:
           requests:
-            cpu: "1"
-            memory: "2048Mi"
+            cpu: "250m"
+            memory: "1024Mi"
           limits:
-            cpu: "2"
-            memory: "4Gi"
+            cpu: "1"
+            memory: "2Gi"
         env:
           - name: PORT_LOCAL
             valueFrom:
@@ -84,36 +80,3 @@ spec:
               secretKeyRef:
                 name: pbk-secret
                 key: API_KEY
-  volumeClaimTemplates:
-  - metadata:
-      name: scoreezy-redis-pvc
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "premium-rwo"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 10Gi
----
-apiVersion: autoscaling/v2beta2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: pbk-hpa
-  namespace: default
-  labels:
-    app: pbk
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: pbk
-  minReplicas: 1
-  maxReplicas: 10
-  metrics:
-  - type: "Resource"
-    resource:
-      name: "cpu"
-      target:
-        type: Utilization
-        averageUtilization: 75
-        
