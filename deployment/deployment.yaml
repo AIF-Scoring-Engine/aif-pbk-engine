@@ -1,8 +1,14 @@
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pbk-ksa
+  namespace: pbk
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: pbk-svc
-  namespace: default
+  namespace: pbk
   labels:
     app: pbk
     service: pbk-svc
@@ -13,12 +19,6 @@ spec:
     name: tcp
   selector:
     app: pbk
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: pbk-ksa
-  namespace: pbk
 ---
 apiVersion: apps/v1
 kind: Deployment
